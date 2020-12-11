@@ -391,6 +391,7 @@ summary {
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
+<p>The dataset that we used in this report can be found <a href="http://inalitic.com/datasets/nhl%20player%20data.html">here</a>.</p>
 </div>
 <div id="methods" class="section level1">
 <h1>Methods</h1>
@@ -540,7 +541,7 @@ str(skaters)</code></pre>
 ##  $ FOwin : num  47 4 42 0 78 0 0 0 74 26 ...
 ##  $ FOloss: num  50 8 51 1 94 1 0 0 96 36 ...
 ##  $ FO.   : num  48.5 33.3 45.2 0 45.3 0 0 0 43.5 41.9 ...</code></pre>
-<p>As we can see, we have a lot of different predictors to choose from when we consider how to best model the average goals per player. The response variable we are considering, Goals (<code>G</code>), is used in the calculations of a few other variables, so we exclude these variables from our consideration. These variables are:</p>
+<p>As we can see, we have a lot of different predictors to choose from when we consider how to best model the average goals per player. The response variable we are considering, Goals (<code>G</code>), is used in the calculations of a few other variables, so we exclude these variables from our consideration. These variables include:</p>
 <ul>
 <li><code>PTS</code>, points tallied by that player in corresponding season; <code>PTS</code> = <code>G</code> + <code>A</code></li>
 <li><code>GPG</code>, goals per game by that player in corresponding season</li>
@@ -580,6 +581,21 @@ plot_qq = function(model, pointcol = &quot;dodgerblue&quot;, linecol = &quot;dar
 summary(goals_addfull)$r.sq</code></pre>
 <pre><code>## [1] 0.8389</code></pre>
 <p>Interaction models took too long to run with RStudio (even models that used only 2 predictors), so we excluded those from our analysis as well.</p>
+<p>In our analysis, we used backwards selection procedures with AIC as our metric, starting on the full additive model:</p>
+<pre class="r"><code>goals_model_back_aic = step(goals_addfull, direction = &quot;backward&quot;, trace = 0)
+summary(goals_model_back_aic)$adj.r.sq</code></pre>
+<pre><code>## [1] 0.8387</code></pre>
+<p>We also searched through the possible models using BIC; the code is included below but will not run when knitting together the .Rmd file, in order to maximize processing efficiency:</p>
+<pre class="r"><code>n = length(resid(goals_addfull))
+goals_model_back_bic = step(goals_addfull, direction = &quot;backward&quot;, k = log(n))
+summary(goals_model_back_bic)adj.$r.sq</code></pre>
+<p>We can see that the model found using AIC is slightly better than the model found using BIC, but the full additive model still yields the highest <span class="math inline">\(R^2\)</span> value.</p>
+<p>We considered a polynomial model, with backwards AIC as well (not run to minimize the time taken to knit an html file):</p>
+<pre class="r"><code>goals_bigModel = lm(G ~. ^ 2 + I(Age ^ 2)  + I(GP ^ 2) + I(A ^ 2) + I(PIM ^ 2) + I(S ^ 2) + I(BLK ^ 2) + I(FOwin ^ 2) + I(FOloss ^ 2), data = skaters_cleaned)
+summary(goals_bigModel)$r.sq
+big_model_back_aic = step(goals_bigModel, direction = &quot;backward&quot;, trace = 0)
+summary(big_model_back_aic)$r.sq</code></pre>
+<p>Code is not included here for concision, but all assumptions were violated when we attempted to check validity of the assumptions for constant variance and normality of errors, using a combination of the functions included in the <strong>Methods</strong> section and the <code>bptest()</code> function.</p>
 <div id="fall-2020-jmn420-jeffrey-yao-martha-dixon-nisha-sen" class="section level3">
 <h3>Fall 2020, JMN420: Jeffrey Yao, Martha Dixon, Nisha Sen</h3>
 </div>

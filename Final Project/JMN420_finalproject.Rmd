@@ -15,6 +15,8 @@ options(scipen = 1, digits = 4, width = 80)
 
 # Introduction
 
+The dataset that we used in this report can be found [here](http://inalitic.com/datasets/nhl%20player%20data.html).
+
 # Methods
 
 First, we need to load the dataset, and we can take a look at the first and last few observations and name all of the variables.
@@ -130,6 +132,33 @@ summary(goals_addfull)$r.sq
 
 Interaction models took too long to run with RStudio (even models that used only 2 predictors), so we excluded those from our analysis as well.
 
+In our analysis, we used backwards selection procedures with AIC as our metric, starting on the full additive model:
 
+```{r}
+goals_model_back_aic = step(goals_addfull, direction = "backward", trace = 0)
+summary(goals_model_back_aic)$adj.r.sq
+
+```
+
+We also searched through the possible models using BIC; the code is included below but will not run when knitting together the .Rmd file, in order to maximize processing efficiency:
+
+```{r, eval=FALSE}
+n = length(resid(goals_addfull))
+goals_model_back_bic = step(goals_addfull, direction = "backward", k = log(n))
+summary(goals_model_back_bic)adj.$r.sq
+```
+
+We can see that the model found using AIC is slightly better than the model found using BIC, but the full additive model still yields the highest $R^2$ value.
+
+We considered a polynomial model, with backwards AIC as well (not run to minimize the time taken to knit an html file):
+
+```{r, eval=FALSE}
+goals_bigModel = lm(G ~. ^ 2 + I(Age ^ 2)  + I(GP ^ 2) + I(A ^ 2) + I(PIM ^ 2) + I(S ^ 2) + I(BLK ^ 2) + I(FOwin ^ 2) + I(FOloss ^ 2), data = skaters_cleaned)
+summary(goals_bigModel)$r.sq
+big_model_back_aic = step(goals_bigModel, direction = "backward", trace = 0)
+summary(big_model_back_aic)$r.sq
+```
+
+Code is not included here for concision, but all assumptions were violated when we attempted to check validity of the assumptions for constant variance and normality of errors, using a combination of the functions included in the **Methods** section and the `bptest()` function.
 
 ### Fall 2020, JMN420: Jeffrey Yao, Martha Dixon, Nisha Sen

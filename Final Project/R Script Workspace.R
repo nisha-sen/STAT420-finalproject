@@ -82,7 +82,24 @@ names(skaters_cleaned)
 
 #full additive model
 goals_addfull = lm(G ~ ., data = skaters_cleaned)
+summary(goals_addfull)
 summary(goals_addfull)$r.sq
+
+#find the "best" additive model using back AIC, starting with the additive model
+goals_addfull = lm(G ~ ., data = skaters_cleaned)
+goals_model_back_aic = step(goals_addfull, direction = "backward", trace = 0)
+summary(goals_model_back_aic)$adj.r.sq
+
+n = length(resid(goals_addfull))
+goals_model_back_bic = step(goals_addfull, direction = "backward", k = log(n), trace = 0)
+summary(goals_model_back_bic)$adj.r.sq
+
+#a squared model:
+goals_bigModel = lm(G ~. ^ 2 + I(Age ^ 2)  + I(GP ^ 2) + I(A ^ 2) + I(PIM ^ 2) + I(S ^ 2) + I(BLK ^ 2) + I(FOwin ^ 2) + I(FOloss ^ 2), data = skaters_cleaned)
+summary(goals_bigModel)$r.sq
+big_model_back_aic = step(goals_bigModel, direction = "backward", trace = 0)
+summary(big_model_back_aic)
+summary(big_model_back_aic)$r.sq
 
 #interactive model
 #goals_int = lm(G ~ Age * Pos * GP * A * PIM, data = skaters_cleaned)
@@ -135,14 +152,25 @@ plot_qq = function(model, pointcol = "dodgerblue", linecol = "darkorange") {
   qqline(resid(model), col = linecol, lwd = 2)
 }
 
-
-
-
-
-
-
-
-
+#check assumptions
+plot_fitted_resid(goals_addfull)
+plot_qq(goals_addfull)
+plot_fitted_resid(goals_model_back_aic)
+plot_fitted_resid(goals_model_back_bic)
+plot_fitted_resid(goals_bigModel)
+plot_qq(goals_bigModel)
+plot_qq(goals_model_back_aic)
+plot_qq(goals_model_back_bic)
+library(lmtest)
+bptest(goals_addfull)
+#constant variance assumption is violated
+shapiro.test(resid(goals_addfull))
+#can't run shapiro test bc sample size is too large
+bptest(goals_model_back_aic)
+#constant variance assumption is violated
+bptest(goals_model_back_bic)
+#constant variance assumption violated
+bptest(goals_bigModel)
 
 
 
