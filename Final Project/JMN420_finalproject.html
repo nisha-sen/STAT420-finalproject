@@ -484,7 +484,8 @@ head(skaters_full)</code></pre>
 ##  $ FOloss: int  50 8 51 1 94 1 0 0 96 36 ...
 ##  $ FO.   : num  48.5 33.3 45.2 0 45.3 0 NA NA 43.5 41.9 ...</code></pre>
 <p>We amend this by converting the relevant vectors to numeric and setting all of the NA values equal to 0. We can see how this changes the dataset by again checking the structure.</p>
-<pre class="r"><code>skaters$Age &lt;- as.numeric(skaters$Age)
+<pre class="r"><code>skaters$Pos &lt;- as.factor(skaters$Pos)
+skaters$Age &lt;- as.numeric(skaters$Age)
 skaters$GP &lt;- as.numeric(skaters$GP)
 skaters$G &lt;- as.numeric(skaters$G)
 skaters$GPG &lt;- as.numeric(skaters$GPG)
@@ -507,31 +508,15 @@ skaters$HIT &lt;- as.numeric(skaters$HIT)
 skaters$FOwin &lt;- as.numeric(skaters$FOwin)
 skaters$FOloss &lt;- as.numeric(skaters$FOloss)
 skaters$FO. &lt;- as.numeric(skaters$FO.)</code></pre>
-<pre class="r"><code>skaters$G[is.na(skaters$G)] &lt;- 0
-skaters$A[is.na(skaters$A)] &lt;- 0
-skaters$EVG[is.na(skaters$EVG)] &lt;- 0
-skaters$PPG[is.na(skaters$PPG)] &lt;- 0
-skaters$PTS[is.na(skaters$PTS)] &lt;- 0
-skaters$SHG[is.na(skaters$SHG)] &lt;- 0
-skaters$GWG[is.na(skaters$GWG)] &lt;- 0
-skaters$EVA[is.na(skaters$EVA)] &lt;- 0
-skaters$SHG[is.na(skaters$SHG)] &lt;- 0
-skaters$PPA[is.na(skaters$PPA)] &lt;- 0
-skaters$SHA[is.na(skaters$SHA)] &lt;- 0
-skaters$S[is.na(skaters$S)] &lt;- 0
-skaters$S.[is.na(skaters$S.)] &lt;- 0
-skaters$TOI[is.na(skaters$TOI)] &lt;- 0
-skaters$FO.[is.na(skaters$FO.)] &lt;- 0
-skaters$X..[is.na(skaters$X..)] &lt;- 0
-skaters$PIM[is.na(skaters$PIM)] &lt;- 0
+<pre class="r"><code>skaters[is.na(skaters)] = 0
 str(skaters)</code></pre>
-<pre><code>## &#39;data.frame&#39;:    15812 obs. of  30 variables:
+<pre><code>## &#39;data.frame&#39;:    15812 obs. of  29 variables:
 ##  $ X     : chr  &quot;2018Justin Abdelkader&quot; &quot;2018Pontus Aberg&quot; &quot;2018Noel Acciari&quot; &quot;2018Kenny Agostino&quot; ...
 ##  $ Season: int  2018 2018 2018 2018 2018 2018 2018 2018 2018 2018 ...
 ##  $ Player: chr  &quot;Justin Abdelkader&quot; &quot;Pontus Aberg&quot; &quot;Noel Acciari&quot; &quot;Kenny Agostino&quot; ...
 ##  $ Age   : num  30 24 26 25 20 21 26 29 21 23 ...
 ##  $ Tm    : chr  &quot; DET &quot; &quot; TOT &quot; &quot; BOS &quot; &quot; BOS &quot; ...
-##  $ Pos   : chr  &quot; LW &quot; &quot; LW &quot; &quot; C &quot; &quot; LW &quot; ...
+##  $ Pos   : Factor w/ 10 levels &quot; C &quot;,&quot; C/LW &quot;,..: 4 4 1 4 8 3 3 3 1 8 ...
 ##  $ GP    : num  75 53 60 5 78 22 15 82 37 63 ...
 ##  $ G     : num  13 4 10 0 29 1 0 1 4 19 ...
 ##  $ GPG   : num  0.1733 0.0755 0.1667 0 0.3718 ...
@@ -554,11 +539,10 @@ str(skaters)</code></pre>
 ##  $ HIT   : num  174 24 152 4 65 10 17 141 18 109 ...
 ##  $ FOwin : num  47 4 42 0 78 0 0 0 74 26 ...
 ##  $ FOloss: num  50 8 51 1 94 1 0 0 96 36 ...
-##  $ FO.   : num  48.5 33.3 45.2 0 45.3 0 0 0 43.5 41.9 ...
-##  $ X..   : num  -11 9 -6 -1 4 -5 -1 -7 -2 -1 ...</code></pre>
+##  $ FO.   : num  48.5 33.3 45.2 0 45.3 0 0 0 43.5 41.9 ...</code></pre>
 <p>As we can see, we have a lot of different predictors to choose from when we consider how to best model the average goals per player. The response variable we are considering, Goals (<code>G</code>), is used in the calculations of a few other variables, so we exclude these variables from our consideration. These variables are:</p>
 <ul>
-<li><code>PTS</code>, points tallied by that player in corresponding season</li>
+<li><code>PTS</code>, points tallied by that player in corresponding season; <code>PTS</code> = <code>G</code> + <code>A</code></li>
 <li><code>GPG</code>, goals per game by that player in corresponding season</li>
 <li><code>EVG</code>, goals scored by player while team is even strength</li>
 <li><code>PPG</code>, goals scored by player while team is on the powerplay</li>
@@ -567,7 +551,21 @@ str(skaters)</code></pre>
 <li><code>S.</code> or S%, the shooting percentage of player, which is calculated from goals scored (G) divided by the shots taken (S)</li>
 </ul>
 <p>We also exclude the variable <code>X</code> from our analysis, since it is not included as a variable in the source documentation for our data; this column exists as a descriptor and is a combination of <code>Season</code> and <code>Player</code>.</p>
+<p>We take this into account below, and remove these variables:</p>
+<pre class="r"><code>skaters_cleaned &lt;- skaters[, c(4, 6, 7, 8, 10, 13, 21, 25, 26, 27, 28)]</code></pre>
 <p>The full additive model(excluding the variables above) can be found in the <strong>Appendix</strong> section.</p>
+<p>Before we started testing models, we needed to make sure we were able to check and validate assumptions. We used the following functions to do so graphically:</p>
+<pre class="r"><code>plot_fitted_resid = function(model, pointcol = &quot;dodgerblue&quot;, linecol = &quot;darkorange&quot;) {
+  plot(fitted(model), resid(model), 
+       col = pointcol, pch = 20, cex = 1.5,
+       xlab = &quot;Fitted&quot;, ylab = &quot;Residuals&quot;)
+  abline(h = 0, col = linecol, lwd = 2)
+}
+
+plot_qq = function(model, pointcol = &quot;dodgerblue&quot;, linecol = &quot;darkorange&quot;) {
+  qqnorm(resid(model), col = pointcol, pch = 20, cex = 1.5)
+  qqline(resid(model), col = linecol, lwd = 2)
+}</code></pre>
 </div>
 <div id="results" class="section level1">
 <h1>Results</h1>
@@ -578,12 +576,12 @@ str(skaters)</code></pre>
 <div id="appendix" class="section level1">
 <h1>Appendix</h1>
 <p>The full additive model:</p>
-<pre class="r"><code>goals_addfull = lm(G ~ . - PTS - GPG - EVG - PPG - SHG - GWG - S. - X, data = skaters)
+<pre class="r"><code>goals_addfull = lm(G ~ ., data = skaters_cleaned)
 summary(goals_addfull)$r.sq</code></pre>
-<pre><code>## [1] 0.9245</code></pre>
+<pre><code>## [1] 0.8389</code></pre>
 <p>Interaction models took too long to run with RStudio (even models that used only 2 predictors), so we excluded those from our analysis as well.</p>
-<div id="fall-2020-jmn420-jeffrey-yao-martha-dixon-nisha-sen" class="section level2">
-<h2>Fall 2020, JMN420: Jeffrey Yao, Martha Dixon, Nisha Sen</h2>
+<div id="fall-2020-jmn420-jeffrey-yao-martha-dixon-nisha-sen" class="section level3">
+<h3>Fall 2020, JMN420: Jeffrey Yao, Martha Dixon, Nisha Sen</h3>
 </div>
 </div>
 

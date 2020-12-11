@@ -44,6 +44,7 @@ str(skaters)
 We amend this by converting the relevant vectors to numeric and setting all of the NA values equal to 0. We can see how this changes the dataset by again checking the structure.
 
 ```{r, warning = FALSE}
+skaters$Pos <- as.factor(skaters$Pos)
 skaters$Age <- as.numeric(skaters$Age)
 skaters$GP <- as.numeric(skaters$GP)
 skaters$G <- as.numeric(skaters$G)
@@ -70,29 +71,13 @@ skaters$FO. <- as.numeric(skaters$FO.)
 ```
 
 ```{r}
-skaters$G[is.na(skaters$G)] <- 0
-skaters$A[is.na(skaters$A)] <- 0
-skaters$EVG[is.na(skaters$EVG)] <- 0
-skaters$PPG[is.na(skaters$PPG)] <- 0
-skaters$PTS[is.na(skaters$PTS)] <- 0
-skaters$SHG[is.na(skaters$SHG)] <- 0
-skaters$GWG[is.na(skaters$GWG)] <- 0
-skaters$EVA[is.na(skaters$EVA)] <- 0
-skaters$SHG[is.na(skaters$SHG)] <- 0
-skaters$PPA[is.na(skaters$PPA)] <- 0
-skaters$SHA[is.na(skaters$SHA)] <- 0
-skaters$S[is.na(skaters$S)] <- 0
-skaters$S.[is.na(skaters$S.)] <- 0
-skaters$TOI[is.na(skaters$TOI)] <- 0
-skaters$FO.[is.na(skaters$FO.)] <- 0
-skaters$X..[is.na(skaters$X..)] <- 0
-skaters$PIM[is.na(skaters$PIM)] <- 0
+skaters[is.na(skaters)] = 0
 str(skaters)
 ```
 
-As we can see, we have a lot of different predictors to choose from when we consider how to best model the average goals per player. The response variable we are considering, Goals (`G`), is used in the calculations of a few other variables, so we exclude these variables from our consideration. These variables are: 
+As we can see, we have a lot of different predictors to choose from when we consider how to best model the average goals per player. The response variable we are considering, Goals (`G`), is used in the calculations of a few other variables, so we exclude these variables from our consideration. These variables include: 
 
-- `PTS`, points tallied by that player in corresponding season
+- `PTS`, points tallied by that player in corresponding season; `PTS` = `G` + `A`
 - `GPG`, goals per game by that player in corresponding season
 - `EVG`, goals scored by player while team is even strength
 - `PPG`, goals scored by player while team is on the powerplay
@@ -102,7 +87,32 @@ As we can see, we have a lot of different predictors to choose from when we cons
 
 We also exclude the variable `X` from our analysis, since it is not included as a variable in the source documentation for our data; this column exists as a descriptor and is a combination of `Season` and `Player`.
 
+We take this into account below, and remove these variables:
+
+```{r}
+skaters_cleaned <- skaters[, c(4, 6, 7, 8, 10, 13, 21, 25, 26, 27, 28)]
+
+```
+
 The full additive model(excluding the variables above) can be found in the **Appendix** section.
+
+Before we started testing models, we needed to make sure we were able to check and validate assumptions. We used the following functions to do so graphically:
+
+```{r}
+plot_fitted_resid = function(model, pointcol = "dodgerblue", linecol = "darkorange") {
+  plot(fitted(model), resid(model), 
+       col = pointcol, pch = 20, cex = 1.5,
+       xlab = "Fitted", ylab = "Residuals")
+  abline(h = 0, col = linecol, lwd = 2)
+}
+
+plot_qq = function(model, pointcol = "dodgerblue", linecol = "darkorange") {
+  qqnorm(resid(model), col = pointcol, pch = 20, cex = 1.5)
+  qqline(resid(model), col = linecol, lwd = 2)
+}
+
+```
+
 
 
 # Results
@@ -114,7 +124,7 @@ The full additive model(excluding the variables above) can be found in the **App
 The full additive model:
 
 ```{r}
-goals_addfull = lm(G ~ . - PTS - GPG - EVG - PPG - SHG - GWG - S. - X, data = skaters)
+goals_addfull = lm(G ~ ., data = skaters_cleaned)
 summary(goals_addfull)$r.sq
 ```
 
@@ -122,4 +132,4 @@ Interaction models took too long to run with RStudio (even models that used only
 
 
 
-## Fall 2020, JMN420: Jeffrey Yao, Martha Dixon, Nisha Sen
+### Fall 2020, JMN420: Jeffrey Yao, Martha Dixon, Nisha Sen
