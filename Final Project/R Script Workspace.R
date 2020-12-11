@@ -87,6 +87,8 @@ summary(goals_addfull)$r.sq
 
 #find the "best" additive model using back AIC, starting with the additive model
 goals_addfull = lm(G ~ ., data = skaters_cleaned)
+plot(goals_addfull)
+
 goals_model_back_aic = step(goals_addfull, direction = "backward", trace = 0)
 summary(goals_model_back_aic)$adj.r.sq
 
@@ -152,6 +154,18 @@ plot_qq = function(model, pointcol = "dodgerblue", linecol = "darkorange") {
   qqline(resid(model), col = linecol, lwd = 2)
 }
 
+names(skaters_cleaned)
+sum(skaters$G < 0)
+
+
+goals_exper = lm(G ~ I(Age ^ 1/4) + Pos + I(GP ^ 1/4) + I(A ^ 1/4) + I(PIM ^ 1/4) + 
+                   I(S ^ 1/4)  + I(BLK ^ 1/4) + I(HIT ^ 1/4) + I(FOwin ^ 1/4) + I(FOloss ^ 1/4), data = skaters_cleaned)
+  
+plot_fitted_resid(goals_exper)
+bptest(goals_exper)
+plot_qq(goals_exper)
+library(MASS)
+boxcox(goals_addfull, plotit = TRUE)
 #check assumptions
 plot_fitted_resid(goals_addfull)
 plot_qq(goals_addfull)
