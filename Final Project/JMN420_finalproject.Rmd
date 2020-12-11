@@ -133,6 +133,7 @@ bptest(goals_bigModel)
 plot_qq(goals_bigModel)
 ```
 
+As we can see, our assumptions for constant variance and our assumptions for normality of errors have both been violated.
 
 # Discussion
 
