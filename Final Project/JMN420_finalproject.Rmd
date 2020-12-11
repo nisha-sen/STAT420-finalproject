@@ -117,6 +117,8 @@ plot_qq = function(model, pointcol = "dodgerblue", linecol = "darkorange") {
 
 Every model we fitted violated the assumptions of constant variance and of normally distributed errors; we attempted to fit the full additive model, a polynomial (squared) model, and models found using AIC based on both of those (code can be found in **Appendix**). We also attempted to transform the predictors using logarithmic transformations, square root transformations, and cube root transformations (omitted for relevance), but all of those models violated assumptions as well.
 
+# Results
+
 After all of this investigation, we decided to select the model we found with the greatest $R^2$ value, which ended up being our polynomial model, or `goals_bigModel`. The adjusted $R^2$ value from the model we found using backwards AIC on this model was the same as the $R^2$ value of this model itself. The model is as follows, along with its $R^2$ value and our attempt to check assumptions:
 
 ```{r}
@@ -131,8 +133,6 @@ bptest(goals_bigModel)
 plot_qq(goals_bigModel)
 ```
 
-
-# Results
 
 # Discussion
 
