@@ -80,6 +80,8 @@ skaters_cleaned <- skaters[, c(4, 6, 7, 8, 10, 13, 21, 25, 26, 27, 28)]
 View(skaters_cleaned)
 names(skaters_cleaned)
 
+
+
 #full additive model
 goals_addfull = lm(G ~ ., data = skaters_cleaned)
 summary(goals_addfull)
@@ -160,7 +162,7 @@ sum(skaters$G < 0)
 
 goals_exper = lm(G ~ I(Age ^ 1/4) + Pos + I(GP ^ 1/4) + I(A ^ 1/4) + I(PIM ^ 1/4) + 
                    I(S ^ 1/4)  + I(BLK ^ 1/4) + I(HIT ^ 1/4) + I(FOwin ^ 1/4) + I(FOloss ^ 1/4), data = skaters_cleaned)
-  
+summary(goals_exper)$r.sq
 plot_fitted_resid(goals_exper)
 bptest(goals_exper)
 plot_qq(goals_exper)
@@ -186,9 +188,36 @@ bptest(goals_model_back_bic)
 #constant variance assumption violated
 bptest(goals_bigModel)
 
+#tests/models with year from 2008
+skaters2 <- subset(skaters, Season >= 2008)
+skaters_cleaned2 <- skaters2[, c(4, 6, 7, 8, 10, 13, 21, 25, 26, 27, 28)]
 
+#full additive model
+goals_addfull2 = lm(G ~ ., data = skaters_cleaned2)
+summary(goals_addfull2)
+summary(goals_addfull2)$r.sq
+plot_fitted_resid(goals_addfull2)
+bptest(goals_addfull2)
+bptest(goals_addfull)
+library(lmtest)
+plot_qq(goals_addfull2)
+plot_qq(goals_addfull)
 
+goals_model_back_aic2 = step(goals_addfull2, direction = "backward", trace = 0)
+summary(goals_model_back_aic2)$adj.r.sq
 
+n = length(resid(goals_addfull2))
+goals_model_back_bic2 = step(goals_addfull2, direction = "backward", k = log(n), trace = 0)
+summary(goals_model_back_bic2)$adj.r.sq
 
+#a squared model:
+goals_bigModel2 = lm(G ~. ^ 2 + I(Age ^ 2)  + I(GP ^ 2) + I(A ^ 2) + I(PIM ^ 2) + I(S ^ 2) + I(BLK ^ 2) + I(FOwin ^ 2) + I(FOloss ^ 2), data = skaters_cleaned2)
+summary(goals_bigModel2)$r.sq
+big_model_back_aic2 = step(goals_bigModel2, direction = "backward", trace = 0)
+summary(big_model_back_aic2)
+summary(big_model_back_aic2)$adj.r.sq
 
+plot_fitted_resid(goals_bigModel2)
+bptest(goals_bigModel2)
+plot_qq(goals_bigModel2)
 
