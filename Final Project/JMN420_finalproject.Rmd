@@ -154,6 +154,13 @@ As we can see, our assumptions for constant variance and our assumptions for nor
 
 # Discussion
 
+As we mentioned and displayed in the results section, the assumptions for both constant variance and normality of errors have both been violated. Based upon the residual graph, you can clearly see that it does not follow a constant variance and bubbles out during the middle-fitted values. We also further confirmed that constant variance is violated by utilizing the studentized Breusch-Pagan test. With its small p-value, we reject the null of homoscedasticity. Therefore, the constant variance is violated. Lastly, the Q-Q plot showed that the points did not closely follow the straight line. Therefore the model does violates the assumption of normality. 
+ 
+Although our model had a high R^2 value, it still is not that beneficial to use as a model due to the fact that there are too many issues. First all the assumptions were violated, and our AIC value is also very large. We typically want a smaller AIC value due to the fact it would demonstrate the model is a good fit if the AIC is small. Therefore, we can’t say that the variables we tested would do a good job in estimating the number of goals a NHL player would score each season. Originally, we had thought that some of these variables we picked would be good estimators but after running models, we realized that’s not the case. Some of the variables were not good estimators for the number of goals players would score each season.
+
+Some potential shortcomings we had with our model was the fact that some data were not tracked until much later. For instance, some of the data wasn’t tracked until 2008 which made it a little harder to do models. Another issue we faced when trying to run models was the fact that interaction models took a very long time to run. 
+
+
 # Appendix
 
 The full additive model:
